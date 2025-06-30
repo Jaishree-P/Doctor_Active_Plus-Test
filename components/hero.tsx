@@ -71,7 +71,7 @@ export default function Hero() {
 
             {/* Main Heading with Typewriter Effect */}
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 leading-tight animate-slide-up">
-              Advanc{" "}
+              Advance{" "}
               <span className="relative">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-emerald-500 to-primary animate-gradient-x">
                   Spine |

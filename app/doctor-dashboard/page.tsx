@@ -1,14 +1,36 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { db } from "@/firebase"
+import {
+  collection,
+  addDoc,
+  getDocs,
+  serverTimestamp,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore"
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { LogOut, Printer, Save, FileText, User, Calendar } from "lucide-react"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select"
+
+import {
+  LogOut, Printer, Save, FileText, User, Calendar, Trash2, Pencil
+} from "lucide-react"
 
 interface Prescription {
   id: string
@@ -34,11 +56,16 @@ export default function DoctorDashboard() {
     const loggedIn = localStorage.getItem("doctorLoggedIn")
     if (loggedIn === "true") {
       setIsAuthenticated(true)
-      // Load saved prescriptions
-      const saved = localStorage.getItem("prescriptions")
-      if (saved) {
-        setPrescriptions(JSON.parse(saved))
-      }
+
+      const unsubscribe = onSnapshot(collection(db, "prescriptions"), (snapshot) => {
+        const data: Prescription[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Prescription[]
+        setPrescriptions(data.reverse())
+      })
+
+      return () => unsubscribe()
     } else {
       router.push("/doctor-login")
     }
@@ -49,89 +76,58 @@ export default function DoctorDashboard() {
     router.push("/doctor-login")
   }
 
-  const handleSavePrescription = () => {
-    if (!currentPrescription.patientName || !currentPrescription.age || !currentPrescription.problem) {
+  const handleSavePrescription = async () => {
+    const { patientName, age, problem, treatment } = currentPrescription
+    if (!patientName || !age || !problem) {
       alert("Please fill in all required fields")
       return
     }
 
-    const newPrescription: Prescription = {
-      id: Date.now().toString(),
-      ...currentPrescription,
+    await addDoc(collection(db, "prescriptions"), {
+      patientName,
+      age,
+      problem,
+      treatment,
       date: new Date().toLocaleDateString(),
-    }
-
-    const updatedPrescriptions = [...prescriptions, newPrescription]
-    setPrescriptions(updatedPrescriptions)
-    localStorage.setItem("prescriptions", JSON.stringify(updatedPrescriptions))
-
-    // Reset form
-    setCurrentPrescription({
-      patientName: "",
-      age: "",
-      problem: "",
-      treatment: "",
+      createdAt: serverTimestamp()
     })
 
+    setCurrentPrescription({ patientName: "", age: "", problem: "", treatment: "" })
     alert("Prescription saved successfully!")
   }
 
   const handlePrint = (prescription: Prescription) => {
-    const printWindow = window.open("", "_blank")
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Prescription - ${prescription.patientName}</title>
-            <style>
-              body { font-family: Arial, sans-serif; padding: 20px; }
-              .header { text-align: center; border-bottom: 2px solid #059669; padding-bottom: 20px; margin-bottom: 30px; }
-              .clinic-name { color: #059669; font-size: 24px; font-weight: bold; }
-              .prescription-content { line-height: 1.6; }
-              .field { margin-bottom: 15px; }
-              .label { font-weight: bold; color: #333; }
-              .footer { margin-top: 40px; text-align: center; border-top: 1px solid #ccc; padding-top: 20px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="clinic-name">Doctor Active Plus</div>
-              <div>Professional Physiotherapy Clinic</div>
-              <div>Phone: +91 9262727272</div>
-            </div>
-            <div class="prescription-content">
-              <div class="field">
-                <span class="label">Date:</span> ${prescription.date}
-              </div>
-              <div class="field">
-                <span class="label">Patient Name:</span> ${prescription.patientName}
-              </div>
-              <div class="field">
-                <span class="label">Age:</span> ${prescription.age}
-              </div>
-              <div class="field">
-                <span class="label">Problem:</span> ${prescription.problem}
-              </div>
-              <div class="field">
-                <span class="label">Treatment Provided:</span><br>
-                ${prescription.treatment.replace(/\n/g, "<br>")}
-              </div>
-            </div>
-            <div class="footer">
-              <div>Dr. Active Plus</div>
-              <div>Senior Physiotherapist</div>
-            </div>
-          </body>
-        </html>
-      `)
-      printWindow.document.close()
-      printWindow.print()
-    }
+    const win = window.open("", "_blank")
+    if (!win) return
+    win.document.write(`
+      <html><head><title>Prescription</title></head><body>
+      <h2>Dr. Active Plus Prescription</h2>
+      <p><strong>Date:</strong> ${prescription.date}</p>
+      <p><strong>Name:</strong> ${prescription.patientName}</p>
+      <p><strong>Age:</strong> ${prescription.age}</p>
+      <p><strong>Problem:</strong> ${prescription.problem}</p>
+      <p><strong>Treatment:</strong><br>${prescription.treatment.replace(/\n/g, "<br>")}</p>
+      </body></html>
+    `)
+    win.document.close()
+    win.print()
   }
 
-  if (!isAuthenticated) {
-    return <div>Loading...</div>
+  const handleDelete = async (id: string) => {
+    await deleteDoc(doc(db, "prescriptions", id))
+    alert("Prescription deleted!")
   }
+
+  const handleEdit = (prescription: Prescription) => {
+    setCurrentPrescription({
+      patientName: prescription.patientName,
+      age: prescription.age,
+      problem: prescription.problem,
+      treatment: prescription.treatment,
+    })
+  }
+
+  if (!isAuthenticated) return <div>Loading...</div>
 
   return (
     <main className="min-h-screen bg-gray-50 py-8">
@@ -141,127 +137,94 @@ export default function DoctorDashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Doctor Dashboard</h1>
             <p className="text-gray-600">Prescription Generator</p>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="flex items-center">
+          <Button onClick={handleLogout} variant="outline">
             <LogOut className="h-4 w-4 mr-2" />
             Logout
           </Button>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Prescription Form */}
+          {/* Form */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="h-5 w-5 mr-2" />
-                Create New Prescription
-              </CardTitle>
+              <CardTitle><FileText className="h-5 w-5 mr-2" /> Create New Prescription</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="patientName">Patient Name *</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="patientName"
-                    value={currentPrescription.patientName}
-                    onChange={(e) => setCurrentPrescription({ ...currentPrescription, patientName: e.target.value })}
-                    className="pl-10"
-                    placeholder="Enter patient name"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="age">Age *</Label>
+                <Label>Patient Name *</Label>
                 <Input
-                  id="age"
+                  value={currentPrescription.patientName}
+                  onChange={(e) => setCurrentPrescription({ ...currentPrescription, patientName: e.target.value })}
+                  placeholder="Enter name"
+                />
+              </div>
+              <div>
+                <Label>Age *</Label>
+                <Input
                   type="number"
                   value={currentPrescription.age}
                   onChange={(e) => setCurrentPrescription({ ...currentPrescription, age: e.target.value })}
                   placeholder="Enter age"
                 />
               </div>
-
               <div>
-                <Label htmlFor="problem">Problem *</Label>
+                <Label>Problem *</Label>
                 <Select
                   value={currentPrescription.problem}
                   onValueChange={(value) => setCurrentPrescription({ ...currentPrescription, problem: value })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select problem" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select problem" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="back-pain">Back Pain</SelectItem>
-                    <SelectItem value="cervical-pain">Cervical Pain</SelectItem>
-                    <SelectItem value="sciatica">Sciatica Pain</SelectItem>
                     <SelectItem value="knee-pain">Knee Pain</SelectItem>
-                    <SelectItem value="frozen-shoulder">Frozen Shoulder</SelectItem>
                     <SelectItem value="arthritis">Arthritis</SelectItem>
-                    <SelectItem value="sports-injury">Sports Injury</SelectItem>
-                    <SelectItem value="varicose-vein">Varicose Vein</SelectItem>
-                    <SelectItem value="diabetic-neuropathy">Diabetic Neuropathy</SelectItem>
-                    
+                    <SelectItem value="sciatica">Sciatica</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
               <div>
-                <Label htmlFor="treatment">Treatment Provided</Label>
+                <Label>Treatment</Label>
                 <Textarea
-                  id="treatment"
                   value={currentPrescription.treatment}
                   onChange={(e) => setCurrentPrescription({ ...currentPrescription, treatment: e.target.value })}
-                  placeholder="Describe the treatment provided, exercises recommended, medications, follow-up instructions..."
-                  rows={6}
+                  placeholder="Describe the treatment..."
+                  rows={4}
                 />
               </div>
-
-              <Button onClick={handleSavePrescription} className="w-full gradient-bg">
+              <Button onClick={handleSavePrescription} className="w-full">
                 <Save className="h-4 w-4 mr-2" />
                 Save Prescription
               </Button>
             </CardContent>
           </Card>
 
-          {/* Saved Prescriptions */}
+          {/* Saved */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Calendar className="h-5 w-5 mr-2" />
-                Saved Prescriptions ({prescriptions.length})
-              </CardTitle>
+              <CardTitle><Calendar className="h-5 w-5 mr-2" /> Saved Prescriptions ({prescriptions.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {prescriptions.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No prescriptions saved yet</p>
-                ) : (
-                  prescriptions.map((prescription) => (
-                    <div key={prescription.id} className="border rounded-lg p-4 bg-white">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold">{prescription.patientName}</h3>
-                          <p className="text-sm text-gray-600">
-                            Age: {prescription.age} | Date: {prescription.date}
-                          </p>
-                        </div>
-                        <Button onClick={() => handlePrint(prescription)} size="sm" variant="outline">
-                          <Printer className="h-4 w-4" />
-                        </Button>
+                {prescriptions.map(p => (
+                  <div key={p.id} className="border p-4 rounded bg-white shadow-sm">
+                    <div className="flex justify-between mb-1">
+                      <div>
+                        <h3 className="font-semibold">{p.patientName}</h3>
+                        <p className="text-sm text-gray-600">Age: {p.age} | {p.date}</p>
                       </div>
-                      <p className="text-sm">
-                        <strong>Problem:</strong> {prescription.problem}
-                      </p>
-                      {prescription.treatment && (
-                        <p className="text-sm mt-2">
-                          <strong>Treatment:</strong> {prescription.treatment.substring(0, 100)}...
-                        </p>
-                      )}
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handlePrint(p)}><Printer className="w-4 h-4" /></Button>
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(p)}><Pencil className="w-4 h-4" /></Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)}><Trash2 className="w-4 h-4" /></Button>
+                      </div>
                     </div>
-                  ))
-                )}
+                    <p className="text-sm"><strong>Problem:</strong> {p.problem}</p>
+                    {p.treatment && (
+                      <p className="text-sm mt-1"><strong>Treatment:</strong> {p.treatment}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
