@@ -1,0 +1,20 @@
+/* animations.css */
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 1.2s ease-out forwards;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* Add other animations like .animate-glow, etc., here if needed */
