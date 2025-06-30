@@ -1,15 +1,24 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Star, Send } from "lucide-react";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, Send } from "lucide-react"
+// ✅ Firebase imports
+import { db } from "../firebase";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 export default function ReviewForm() {
   const [formData, setFormData] = useState({
@@ -17,8 +26,8 @@ export default function ReviewForm() {
     treatment: "",
     review: "",
     rating: 0,
-  })
-  const [hoveredRating, setHoveredRating] = useState(0)
+  });
+  const [hoveredRating, setHoveredRating] = useState(0);
 
   const treatments = [
     "Laser Therapy",
@@ -27,23 +36,37 @@ export default function ReviewForm() {
     "Venous Treatment",
     "Aesthetic Treatment",
     "Sports Treatment",
-  ]
+  ];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formData.name || !formData.treatment || !formData.review || formData.rating === 0) {
-      alert("Please fill in all fields and provide a rating")
-      return
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { name, treatment, review, rating } = formData;
+
+    if (!name || !treatment || !review || rating === 0) {
+      alert("Please fill in all fields and provide a rating");
+      return;
     }
 
-    console.log("Review submitted:", formData)
-    alert("Thank you for your review! It will be published after verification.")
-    setFormData({ name: "", treatment: "", review: "", rating: 0 })
-  }
+    try {
+      await addDoc(collection(db, "reviews"), {
+        name,
+        treatment,
+        comment: review,
+        rating,
+        createdAt: Timestamp.now(),
+      });
+
+      alert("Thank you for your review! It will be published after verification.");
+      setFormData({ name: "", treatment: "", review: "", rating: 0 });
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
 
   const handleRatingClick = (rating: number) => {
-    setFormData({ ...formData, rating })
-  }
+    setFormData({ ...formData, rating });
+  };
 
   return (
     <Card className="animate-scale-in hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white to-primary/5 border-2 border-primary/10">
@@ -101,7 +124,9 @@ export default function ReviewForm() {
                 >
                   <Star
                     className={`h-8 w-8 transition-colors ${
-                      star <= (hoveredRating || formData.rating) ? "text-yellow-400 fill-current" : "text-gray-300"
+                      star <= (hoveredRating || formData.rating)
+                        ? "text-yellow-400 fill-current"
+                        : "text-gray-300"
                     }`}
                   />
                 </button>
@@ -132,5 +157,5 @@ export default function ReviewForm() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

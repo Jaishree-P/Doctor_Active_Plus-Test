@@ -1,37 +1,33 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Star } from "lucide-react"
+"use client";
 
-const reviews = [
-  {
-    name: "Rajesh Kumar",
-    rating: 5,
-    comment:
-      "Excellent treatment for my back pain. Dr. Active Plus provided home service which was very convenient. Highly recommended!",
-    treatment: "Spine Treatment",
-  },
-  {
-    name: "Priya Sharma",
-    rating: 5,
-    comment:
-      "Amazing results with the aesthetic treatments. Professional service and great care. Very satisfied with the outcome.",
-    treatment: "Aesthetic Treatment",
-  },
-  {
-    name: "Amit Patel",
-    rating: 5,
-    comment:
-      "Recovered completely from my sports injury. The rehabilitation program was excellent and well-structured.",
-    treatment: "Sports Treatment",
-  },
-  {
-    name: "Sunita Devi",
-    rating: 5,
-    comment: "Great treatment for my knee pain. The home service made it so much easier for me. Thank you!",
-    treatment: "Joint Treatment",
-  },
-]
+import { useEffect, useState } from "react";
+import { db } from "../firebase"; // adjust path if needed
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  DocumentData,
+} from "firebase/firestore";
+import { Card, CardContent } from "@/components/ui/card";
+import { Star } from "lucide-react";
 
 export default function Reviews() {
+  const [reviews, setReviews] = useState<DocumentData[]>([]);
+
+  useEffect(() => {
+    const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedReviews = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setReviews(fetchedReviews);
+    });
+
+    return () => unsubscribe(); // cleanup
+  }, []);
+
   return (
     <section id="reviews" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,7 +38,7 @@ export default function Reviews() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {reviews.map((review, index) => (
-            <Card key={index} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+            <Card key={review.id || index} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   {[...Array(review.rating)].map((_, i) => (
@@ -60,5 +56,5 @@ export default function Reviews() {
         </div>
       </div>
     </section>
-  )
+  );
 }
