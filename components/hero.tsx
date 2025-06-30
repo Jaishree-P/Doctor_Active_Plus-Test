@@ -78,7 +78,7 @@ export default function Hero() {
                 </span>
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-emerald-500/20 rounded-lg blur opacity-30 animate-pulse"></div>
               </span>{" "}
-              Joint & Laser Center
+              Joint 
             </h1>
 
             {/* Animated Description */}
