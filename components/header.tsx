@@ -36,7 +36,6 @@ export default function Header() {
                 <span>Home Service Available</span>
               </div>
               <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-1" />
                 <span>www.dranilkumarpt.com</span>
               </div>
             </div>
