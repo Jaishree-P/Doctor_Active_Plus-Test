@@ -36,8 +36,11 @@ export default function Header() {
                 <span>Home Service Available</span>
               </div>
               <div className="flex items-center">
-                <span>www.dranilkumarpt.com</span>
+              <a href="https://www.dranilkumarpt.com" target="_blank" rel="noopener noreferrer" className="text-white-600 hover:underline">
+                   www.dranilkumarpt.com
+              </a>
               </div>
+
             </div>
           </div>
         </div>
