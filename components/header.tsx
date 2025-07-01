@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Phone, MapPin, Stethoscope } from "lucide-react"
 import { useBooking } from "./booking-context"
@@ -36,11 +37,15 @@ export default function Header() {
                 <span>Home Service Available</span>
               </div>
               <div className="flex items-center">
-              <a href="https://www.dranilkumarpt.com" target="_blank" rel="noopener noreferrer" className="text-white-600 hover:underline">
-                   www.dranilkumarpt.com
-              </a>
+                <a
+                  href="https://www.dranilkumarpt.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:underline"
+                >
+                  www.dranilkumarpt.com
+                </a>
               </div>
-
             </div>
           </div>
         </div>
@@ -49,11 +54,18 @@ export default function Header() {
       {/* Main navbar */}
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-primary">
-              Doctor Active Plus
-            </Link>
-          </div>
+          <div className="flex items-center space-x-2">
+  <Image
+    src="/dap-icon.jpeg" // Correct path from public folder
+    alt="Doctor Active Plus Logo"
+    width={32}
+    height={32}
+  />
+  <Link href="/" className="text-xl font-bold text-primary">
+    Doctor Active Plus
+  </Link>
+</div>
+
 
           {/* Desktop menu */}
           <div className="hidden md:flex space-x-4 items-center">
