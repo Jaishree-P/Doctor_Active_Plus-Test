@@ -12,38 +12,7 @@ export interface BlogPost {
 }
 
 export const blogPosts: BlogPost[] = [
-  {
-    id: "laser-therapy-revolution",
-    title: "The Revolution of Laser Therapy in Modern Pain Management",
-    excerpt:
-      "Discover how cutting-edge laser therapy is transforming pain management and accelerating healing processes with minimal side effects.",
-    content: `
-      <h2>Understanding Laser Therapy</h2>
-      <p>Laser therapy, also known as Low-Level Laser Therapy (LLLT) or photobiomodulation, represents a breakthrough in non-invasive pain management. This advanced treatment uses specific wavelengths of light to stimulate cellular processes and promote natural healing.</p>
-      
-      <h3>How Laser Therapy Works</h3>
-      <p>The therapy works by delivering photons of light energy to damaged cells, which then absorb this energy and use it to normalize cellular function and enhance the body's natural healing processes. This results in reduced inflammation, decreased pain, and accelerated tissue repair.</p>
-      
-      <h3>Benefits of Laser Therapy</h3>
-      <ul>
-        <li>Non-invasive and painless treatment</li>
-        <li>No known side effects</li>
-        <li>Reduces inflammation and swelling</li>
-        <li>Accelerates tissue healing</li>
-        <li>Improves blood circulation</li>
-        <li>Provides long-lasting pain relief</li>
-      </ul>
-      
-      <h3>Conditions Treated</h3>
-      <p>Laser therapy is effective for treating various conditions including arthritis, sports injuries, chronic pain, wound healing, and post-surgical recovery. At our clinic, we use state-of-the-art laser equipment to ensure optimal treatment outcomes.</p>
-    `,
-    author: "Dr. Anil Kumar",
-    date: "2024-01-15",
-    readTime: "5 min read",
-    category: "Treatment",
-    image: "/images/blog/laser-therapy-revolution.jpg",
-    tags: ["Laser Therapy", "Pain Management", "Modern Medicine"],
-  },
+  
   {
     id: "home-physiotherapy-benefits",
     title: "5 Key Benefits of Home Physiotherapy Services",
@@ -109,40 +78,7 @@ export const blogPosts: BlogPost[] = [
     image: "/images/blog/spine-health-digital.jpg",
     tags: ["Spine Health", "Digital Age", "Prevention", "Ergonomics"],
   },
-  {
-    id: "sports-injury-prevention",
-    title: "Complete Guide to Sports Injury Prevention and Recovery",
-    excerpt:
-      "Comprehensive strategies for athletes and fitness enthusiasts to prevent injuries and optimize recovery for peak performance.",
-    content: `
-      <h2>Understanding Sports Injuries</h2>
-      <p>Sports injuries can derail athletic performance and long-term health. Understanding prevention strategies and proper recovery techniques is essential for all athletes, from weekend warriors to professionals.</p>
-      
-      <h3>Common Sports Injuries</h3>
-      <ul>
-        <li>ACL tears and knee injuries</li>
-        <li>Shoulder impingement and rotator cuff injuries</li>
-        <li>Ankle sprains</li>
-        <li>Tennis and golfer's elbow</li>
-        <li>Hamstring and muscle strains</li>
-      </ul>
-      
-      <h3>Prevention Strategies</h3>
-      <p>Proper warm-up, progressive training, adequate rest, and maintaining good form are fundamental to injury prevention. Cross-training and strength conditioning also play crucial roles.</p>
-      
-      <h3>The RICE Protocol</h3>
-      <p>For acute injuries, the RICE protocol (Rest, Ice, Compression, Elevation) remains effective for initial management. However, early mobilization under professional guidance often leads to better outcomes.</p>
-      
-      <h3>Advanced Recovery Techniques</h3>
-      <p>Modern sports medicine incorporates laser therapy, targeted exercises, and progressive rehabilitation programs to ensure athletes return to their sport stronger and more resilient.</p>
-    `,
-    author: "Dr. Anil Kumar",
-    date: "2023-12-28",
-    readTime: "7 min read",
-    category: "Sports Medicine",
-    image: "/images/blog/sports-injury-prevention.jpg",
-    tags: ["Sports Medicine", "Injury Prevention", "Athletic Performance"],
-  },
+  
   {
     id: "arthritis-management-guide",
     title: "Living Well with Arthritis: A Comprehensive Management Guide",

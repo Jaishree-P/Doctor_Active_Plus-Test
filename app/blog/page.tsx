@@ -6,6 +6,7 @@ import Link from "next/link"
 import { blogPosts } from "@/data/blog"
 
 export default function BlogPage() {
+  // Extract unique blog categories (not currently used for filtering)
   const categories = [...new Set(blogPosts.map((post) => post.category))]
 
   return (
@@ -21,12 +22,14 @@ export default function BlogPage() {
 
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Search and Filter */}
+          {/* Search and Filter Section */}
           <div className="mb-12 flex flex-col md:flex-row gap-6 items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input placeholder="Search articles..." className="pl-10" />
-            </div>
+            {/* Search Input UI only — no functionality yet */}
+            
+
+            {/* Category badges — UI only, no filter logic */}
+            {/* Uncomment and implement filter logic if needed in future */}
+            {/*
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-white">
                 All
@@ -37,9 +40,10 @@ export default function BlogPage() {
                 </Badge>
               ))}
             </div>
+            */}
           </div>
 
-          {/* Blog Grid */}
+          {/* Blog Grid Display */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.map((blog, index) => (
               <Link key={blog.id} href={`/blog/${blog.id}`}>
